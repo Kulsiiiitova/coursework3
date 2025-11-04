@@ -6,10 +6,11 @@ from src.db_manager import DBManager
 from src.employer_id import get_employer_id, save_data_to_database
 
 
-def main():
+def main() -> None:
     """ Основная функция """
     # Получаем параметры подключения из database.ini
     params = config()
+    
 
     # Создаем экземпляр DBManager с именем базы данных
     db_manager = DBManager("hh_vacancy")

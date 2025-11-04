@@ -54,5 +54,6 @@ def save_data_to_database(
 
 
 def get_json(file_name, data):
+    """ Функция, которая сохраняет данные в json-файл"""
     with open(file_name, "w") as f:
         json.dump(data, f, ensure_ascii=False, indent=4)

@@ -6,10 +6,11 @@ from src.employer_id import get_json
 class DBManager:
     """Класс для работы с БД postgre"""
 
-    def __init__(self, db_name: str):
+    def __init__(self, db_name: str) -> None:
         self.db_name = db_name
 
-    def create_database(self, params):
+    def create_database(self, params: dict) -> None:
+        """ Метод, который создает базу данных"""
         conn = psycopg2.connect(dbname="postgres", **params)
         conn.autocommit = True
         cur = conn.cursor()
@@ -46,32 +47,36 @@ class DBManager:
         conn.commit()
         conn.close()
 
-    def get_companies_and_vacancies_count(self, params):
+    def get_companies_and_vacancies_count(self, params: dict) -> None:
+        """ Метод, который получает список всех компаний и количество вакансий у каждой компании."""
         conn = psycopg2.connect(dbname=self.db_name, **params)
         with conn.cursor() as cur:
             cur.execute(
                 """
-                SELECT company_name, COUNT(*) FROM vacancy
-                GROUP BY company_name
+                SELECT company.company_name, COUNT(*) FROM vacancy JOIN company USING (company_id)
+                GROUP BY company.company_name
                 """
             )
             result = cur.fetchall()
         conn.close()
         get_json('json/companies_and_vacancies_count.json', result)
 
-    def get_all_vacancies(self, params):
+    def get_all_vacancies(self, params: dict) -> None:
+        """ Метод, который получает список всех вакансий с указанием названия компании,
+        названия вакансии и зарплаты и ссылки на вакансию."""
         conn = psycopg2.connect(dbname=self.db_name, **params)
         with conn.cursor() as cur:
             cur.execute(
                 """
-                SELECT company_name, name, salary, url_vacancy FROM vacancy
+                SELECT company.company_name, name, salary, url_vacancy FROM vacancy JOIN company USING (company_id)
                 """
             )
             result = cur.fetchall()
         conn.close()
         get_json('json/all_vacancies.json', result)
 
-    def get_avg_salary(self, params):
+    def get_avg_salary(self, params: dict) -> float:
+        """ Метод, который получает среднюю зарплату по вакансиям."""
         conn = psycopg2.connect(dbname=self.db_name, **params)
         with conn.cursor() as cur:
             cur.execute(
@@ -83,7 +88,8 @@ class DBManager:
         conn.close()
         return float(result)
 
-    def get_vacancies_with_higher_salary(self, params):
+    def get_vacancies_with_higher_salary(self, params: dict) -> None:
+        """ Метод, который получает список всех вакансий, у которых зарплата выше средней по всем вакансиям."""
         conn = psycopg2.connect(dbname=self.db_name, **params)
         with conn.cursor() as cur:
             cur.execute(
@@ -96,7 +102,9 @@ class DBManager:
         conn.close()
         get_json('json/vacancies_with_higher_salary.json', result)
 
-    def get_vacancies_with_keyword(self, params, key):
+    def get_vacancies_with_keyword(self, params: dict, key: str) -> None:
+        """ Метод, который получает список всех вакансий, в названии которых содержатся переданные в метод слова,
+        например python."""
         conn = psycopg2.connect(dbname=self.db_name, **params)
         with conn.cursor() as cur:
             cur.execute(
